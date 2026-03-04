@@ -1,0 +1,26 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y wget tar gzip iproute2 net-tools \
+    iputils-ping libpcap-dev build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget https://go.dev/dl/go1.24.1.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.24.1.linux-amd64.tar.gz && \
+    rm go1.24.1.linux-amd64.tar.gz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+RUN go version
+
+WORKDIR /app
+
+COPY . .
+
+RUN go build -o prog .
+
+# CMD ["./prog"]
+# CMD ["tail", "-f", "/dev/null"]
+

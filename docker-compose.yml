@@ -1,0 +1,42 @@
+services:
+  # ftp:
+  #   image: ubuntu:22.04
+  #   privileged: true
+  #   networks:
+  #     lab: 
+  #       ipv4_address: 10.0.0.10
+  #   command: 
+  #     - bash -c "apt update && apt -y install vsftpd && echo 'anonymous_enable=YES' >> /etc/vsftpd.conf && service vsftpd start"
+  #   ports:
+  #     - "21:21"
+
+  victime:
+    build:
+      context: .
+      dockerfile: Dockerfile.victime
+    container_name: victime
+    privileged: true
+    networks:
+      lab: 
+        ipv4_address: 10.0.0.20
+    command: "tail -f /dev/null"
+
+  attaquant:
+    build:
+      context: .
+      dockerfile: Dockerfile.attaquant
+    container_name: attaquant
+    privileged: true
+    networks:
+      lab: 
+        ipv4_address: 10.0.0.30
+    volumes:
+      - .:/app
+    command: "tail -f /dev/null"
+
+networks:
+  lab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
