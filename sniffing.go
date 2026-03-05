@@ -2,32 +2,28 @@ package main
 
 import (
 	"fmt"
-	"net"
-
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"net"
 )
 
-func launchSniffing(typeToFilter string) {
-	fmt.Println("SNIFFING")
-	if handle, err := pcap.OpenLive("eth0", 1600, true, pcap.BlockForever); err != nil {
-		panic(err)
-	} else if typeToFilter != "" {
-		filterByType(handle)
-	} else {
-		packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-		for packet := range packetSource.Packets() {
-			handlePacket(packet)
-		}
+func launchSniffing(typeToFilter string, handle *pcap.Handle) {
+	if typeToFilter != "" {
+		filterByType(typeToFilter, handle)
+	}
+	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	count := 0
+	for packet := range packetSource.Packets() {
+		handlePacket(packet)
+		printSniffing(&count)
 	}
 }
 
-func filterByType(handler *pcap.Handle) {
-	if err := handler.SetBPFFilter("arp"); err != nil {
+func filterByType(typeToFilter string, handler *pcap.Handle) {
+	if err := handler.SetBPFFilter(typeToFilter); err != nil {
 		panic(err)
 	}
-
 }
 
 func handlePacket(packet gopacket.Packet) {
@@ -43,7 +39,9 @@ func handlePacket(packet gopacket.Packet) {
 func handleTcpPacket(tcpLayer gopacket.Layer) {
 	fmt.Print("TCP: ")
 	tcp, _ := tcpLayer.(*layers.TCP)
+	payload := string(tcp.Payload)
 	fmt.Printf("From src port %d to dst port %d\n", tcp.SrcPort, tcp.DstPort)
+	fmt.Printf("Payload :%s\n", payload)
 }
 
 func handleArpPacket(arpLayer gopacket.Layer) {

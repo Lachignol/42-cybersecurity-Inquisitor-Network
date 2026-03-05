@@ -1,0 +1,11 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y vsftpd iproute2 --no-install-recommends ca-certificates net-tools iputils-ping && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+RUN bash -c "echo 'anonymous_enable=YES' >> /etc/vsftpd.conf && service vsftpd start"
+
+# CMD ["service","vsftpd","start"]

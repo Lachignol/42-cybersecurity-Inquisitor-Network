@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"regexp"
 )
 
 func setup(ip_src *string, mac_src *string, ip_target *string, mac_target *string) bool {
@@ -65,12 +64,8 @@ func checkValidIpv4(ipToTest string) bool {
 }
 
 func checkValidMacAddr(macAddrToTest string) bool {
-	if macAddrToTest == "" {
-		return false
-	}
-	pattern := `^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$`
-	regex := regexp.MustCompile(pattern)
-	if !regex.MatchString(macAddrToTest) {
+	_, err := net.ParseMAC(macAddrToTest)
+	if err == nil {
 		return false
 	}
 	return true
