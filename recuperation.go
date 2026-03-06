@@ -16,7 +16,6 @@ func launchRecuperation(usurpated_ip net.IP, mac_src net.HardwareAddr, ip_target
 	fmt.Println("Launch recuperation")
 	for i := 0; i < 100; i++ {
 		recuperationARP(handle, usurpated_ip, mac_src, ip_target, mac_target)
-		recuperationARP(handle, ip_target, mac_target, usurpated_ip, mac_src)
 		time.Sleep(50 * time.Millisecond)
 	}
 	fmt.Println("Recuperation done")
