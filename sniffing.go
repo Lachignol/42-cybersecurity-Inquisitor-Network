@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
+	"net"
+	"reflect"
+
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"net"
 )
 
-func launchSniffing(typeToFilter string) {
+func launchSniffing(typeToFilter string, attaquant_mac net.HardwareAddr) {
 	handle := createSniffingHandle("eth0")
 	defer handle.Close()
 	if typeToFilter != "" {
 		filterByType(typeToFilter, handle)
 	}
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	count := 0
 	for packet := range packetSource.Packets() {
-		handlePacket(packet)
-		printSniffing(&count)
+		handlePacket(packet, attaquant_mac)
 	}
 }
 
@@ -36,30 +36,32 @@ func filterByType(typeToFilter string, handler *pcap.Handle) {
 	}
 }
 
-func handlePacket(packet gopacket.Packet) {
+func handlePacket(packet gopacket.Packet, attaquant_mac net.HardwareAddr) {
 	if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 		handleTcpPacket(tcpLayer)
 	}
 	if arpLayer := packet.Layer(layers.LayerTypeARP); arpLayer != nil {
-		handleArpPacket(arpLayer)
+		handleArpPacket(arpLayer, attaquant_mac)
 	}
 	// printAllLayer(packet)
 }
 
 func handleTcpPacket(tcpLayer gopacket.Layer) {
-	fmt.Print("TCP: ")
 	tcp, _ := tcpLayer.(*layers.TCP)
 	payload := string(tcp.Payload)
-	fmt.Printf("From src port %d to dst port %d\n", tcp.SrcPort, tcp.DstPort)
-	fmt.Printf("Payload :%s\n", payload)
+	fmt.Printf("TCP: From src port %d to dst port %d\n", tcp.SrcPort, tcp.DstPort)
+	fmt.Println("Payload :%s\n", payload)
 }
 
-func handleArpPacket(arpLayer gopacket.Layer) {
-	fmt.Print("ARP: ")
+func handleArpPacket(arpLayer gopacket.Layer, attaquant_mac net.HardwareAddr) {
 	arp, _ := arpLayer.(*layers.ARP)
-	dst_Mac_adrr := net.HardwareAddr(arp.DstHwAddress)
-	src_Mac_adrr := net.HardwareAddr(arp.SourceHwAddress)
-	fmt.Printf("[DESTINATION MAC ADDR : %s] [SOURCE MAC ADDR : %s]\n", dst_Mac_adrr, src_Mac_adrr)
+	dst_ip_addr := net.IP(arp.DstProtAddress)
+	dst_Mac_addr := net.HardwareAddr(arp.DstHwAddress)
+	src_ip_addr := net.IP(arp.SourceProtAddress)
+	src_Mac_addr := net.HardwareAddr(arp.SourceHwAddress)
+	if !reflect.DeepEqual(src_Mac_addr, attaquant_mac) {
+		fmt.Println("ARP:[DESTINATION IP: %s MAC: %s] [SOURCE IP: %s MAC: %s]", dst_ip_addr, dst_Mac_addr, src_ip_addr, src_Mac_addr)
+	}
 }
 
 func printAllLayer(packet gopacket.Packet) {

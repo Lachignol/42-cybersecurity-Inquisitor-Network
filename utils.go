@@ -1,43 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func printPoisoning(count *int) {
+	os.Stdout.Sync()
+	dots := []string{"Poisoning", "Poisoning.", "Poisoning..", "Poisoning..."}
 
-	if *count == 0 {
-		fmt.Println("Poisoning.")
-		*count++
-		return
-	}
-	if *count == 1 {
-		fmt.Println("Poisoning..")
-		*count++
-		return
-	}
-
-	if *count == 2 {
-		fmt.Println("Poisoning...")
-		*count = 0
-		return
-	}
+	fmt.Printf("\r%s", dots[*count])
+	*count = (*count + 1) % len(dots)
 }
 
 func printSniffing(count *int) {
+	os.Stdout.Sync()
+	dots := []string{"Sniffing", "Sniffing.", "Sniffing..", "Sniffing..."}
 
-	if *count == 0 {
-		fmt.Println("Sniffing.")
-		*count++
-		return
-	}
-	if *count == 1 {
-		fmt.Println("Sniffing..")
-		*count++
-		return
-	}
-
-	if *count == 2 {
-		fmt.Println("Sniffing...")
-		*count = 0
-		return
-	}
+	fmt.Printf("\r%s", dots[*count])
+	*count = (*count + 1) % len(dots)
 }
