@@ -8,7 +8,9 @@ import (
 	"net"
 )
 
-func launchSniffing(typeToFilter string, handle *pcap.Handle) {
+func launchSniffing(typeToFilter string) {
+	handle := createSniffingHandle("eth0")
+	defer handle.Close()
 	if typeToFilter != "" {
 		filterByType(typeToFilter, handle)
 	}
@@ -18,6 +20,14 @@ func launchSniffing(typeToFilter string, handle *pcap.Handle) {
 		handlePacket(packet)
 		printSniffing(&count)
 	}
+}
+
+func createSniffingHandle(nameOfdevice string) *pcap.Handle {
+	handle, err := pcap.OpenLive(nameOfdevice, 1600, true, pcap.BlockForever)
+	if err != nil {
+		panic(err)
+	}
+	return handle
 }
 
 func filterByType(typeToFilter string, handler *pcap.Handle) {

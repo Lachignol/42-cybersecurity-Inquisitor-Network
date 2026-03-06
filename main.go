@@ -6,24 +6,10 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"sync"
-
-	"github.com/google/gopacket/pcap"
 )
 
-func createHandle(nameOfdevice string) *pcap.Handle {
-
-	handle, err := pcap.OpenLive(nameOfdevice, 1600, true, pcap.BlockForever)
-	if err != nil {
-		panic(err)
-	}
-	return handle
-}
-
-var wg sync.WaitGroup
-
 func main() {
-	typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
+	// typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
 	flag.Parse()
 
 	// attaquant_ip := net.ParseIP("10.0.0.30")
@@ -51,9 +37,12 @@ func main() {
 	// 	return
 	// }
 	// -------------------------------------------------------
-	handle := createHandle("eth0")
-	defer handle.Close()
 
+	// restoreMac := discoverRealGatewayMAC(ip_src)
+	// if restoreMac == nil {
+	// 	fmt.Println("Original mac addr of ip to usurpate is not find")
+	// 	return
+	// }
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		c := make(chan os.Signal, 1)
@@ -61,13 +50,15 @@ func main() {
 		<-c
 		signal.Reset()
 		cancel()
+		// launchRecuperation(ip_src, mac_src, ip_target, mac_target)
 	}()
+	go launchPoisoning(ip_src, mac_src, ip_target, mac_target, ctx)
+	// go launchPoisoning(ip_target, mac_target, ip_src, mac_src, ctx)
 
-	go launchPoisoning(ip_src, mac_src, ip_target, mac_target, handle, ctx)
+	for {
+	}
+	// launchSniffing(*typeToFilter)
 
-	// a decommenter apres pour lancer le sniffing
-	// -------------------------------------------------------
-	launchSniffing(*typeToFilter, handle)
 	// -------------------------------------------------------
 
 	// Block until a signal is received.

