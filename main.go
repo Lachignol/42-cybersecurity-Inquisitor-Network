@@ -7,21 +7,54 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"time"
 )
+
+type global struct {
+	victime_ip    net.IP
+	serveur_ip    net.IP
+	serveur_mac   net.HardwareAddr
+	attaquant_mac net.HardwareAddr
+	victime_mac   net.HardwareAddr
+}
+
+// func initGlob(ip_src net.IP, mac_src net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) *global {
+// 	g := global{}
+// 	g.victime_ip = ip_src
+// 	g.victime_mac = mac_src
+// 	g.serveur_ip = ip_target
+// 	g.serveur_mac = mac_target
+// 	g.attaquant_mac = getMymac()
+// 	return &g
+// }
+
+func initFakeGlob() *global {
+	// attaquant_ip := net.ParseIP("10.0.0.30")
+	attaquant_mac, _ := net.ParseMAC("02:42:0a:00:00:0c")
+	victime_ip := net.ParseIP("10.0.0.20")
+	victime_mac, _ := net.ParseMAC("02:42:0A:00:00:0B")
+	serveur_ip := net.ParseIP("10.0.0.10")
+	serveur_mac, _ := net.ParseMAC("02:42:0A:00:00:0A")
+	g := global{}
+	g.victime_ip = victime_ip
+	g.victime_mac = victime_mac
+	g.serveur_ip = serveur_ip
+	g.serveur_mac = serveur_mac
+	g.attaquant_mac = attaquant_mac
+	return &g
+}
 
 func main() {
 	typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
 	flag.Parse()
 
-	// attaquant_ip := net.ParseIP("10.0.0.30")
-	attaquant_mac, _ := net.ParseMAC("02:42:0a:00:00:0c")
-
-	victime_ip := net.ParseIP("10.0.0.20")
-	victime_mac, _ := net.ParseMAC("02:42:0A:00:00:0B")
-
-	serveur_ip := net.ParseIP("10.0.0.10")
-	serveur_mac, _ := net.ParseMAC("02:42:0A:00:00:0A")
+	// // attaquant_ip := net.ParseIP("10.0.0.30")
+	// attaquant_mac, _ := net.ParseMAC("02:42:0a:00:00:0c")
+	//
+	// victime_ip := net.ParseIP("10.0.0.20")
+	// victime_mac, _ := net.ParseMAC("02:42:0A:00:00:0B")
+	//
+	// serveur_ip := net.ParseIP("10.0.0.10")
+	// serveur_mac, _ := net.ParseMAC("02:42:0A:00:00:0A")
 
 	// ip_target := serveur_ip
 	// mac_target := serveur_mac
@@ -38,13 +71,9 @@ func main() {
 	// if !setup(&ip_src, &mac_src, &ip_target, &mac_target) {
 	// 	return
 	// }
+	// global := initGlob(net.ParseIP(ip_src), net.ParseMAC(mac_src), net.ParseIP(ip_target), net.ParseMAC(mac_target))
 	// -------------------------------------------------------
-
-	// restoreMac := discoverRealGatewayMAC(ip_src)
-	// if restoreMac == nil {
-	// 	fmt.Println("Original mac addr of ip to usurpate is not find")
-	// 	return
-	// }
+	global := initFakeGlob()
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		c := make(chan os.Signal, 1)
@@ -52,24 +81,17 @@ func main() {
 		<-c
 		signal.Reset()
 		cancel()
-		fmt.Println("\nStarting cleaning")
-		time.Sleep(1 * time.Second)
-		launchRecuperation(victime_ip, attaquant_mac, serveur_ip, serveur_mac)
-		launchRecuperation(serveur_ip, attaquant_mac, victime_ip, victime_mac)
+		printRecuperation(3)
+		launchRecuperationOneWay(global)
+		launchRecuperationOtherWay(global)
 		fmt.Println("CLEANING DONE")
+		os.Exit(0)
 	}()
-	go launchPoisoning(victime_ip, attaquant_mac, serveur_ip, serveur_mac, ctx)
-	go launchPoisoning(serveur_ip, attaquant_mac, victime_ip, victime_mac, ctx)
+	go launchPoisoning(global, ctx)
+	go launchSniffing(*typeToFilter, global, ctx)
 
-	launchSniffing(*typeToFilter, attaquant_mac)
 	for {
+		// je bloque le processus principal
 	}
-
-	// -------------------------------------------------------
-
-	// Block until a signal is received.
-	// s := <-c
-	// fmt.Println("Got signal:", s)
-	// fmt.Println("ARP TABLE RESTAURATION:", s)
 
 }
