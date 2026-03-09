@@ -6,6 +6,27 @@ RUN apt-get update && apt-get install -y vsftpd iproute2 --no-install-recommends
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
-RUN bash -c "echo 'anonymous_enable=YES' >> /etc/vsftpd.conf && service vsftpd start"
+
+# Créer le répertoire chroot pour anonymous
+RUN mkdir -p /var/run/vsftpd/empty && \
+    chmod 755 /var/run/vsftpd/empty && \
+    chown root:root /var/run/vsftpd/empty && \
+    mkdir -p /var/ftp/upload && \
+    chmod a+w /var/ftp/upload   
+
+EXPOSE 21
+
+# Config complète
+RUN echo "anonymous_enable=YES" >> /etc/vsftpd.conf && \
+    echo "listen=YES" >> /etc/vsftpd.conf && \
+    echo "listen_ipv6=NO" >> /etc/vsftpd.conf && \
+    echo "write_enable=YES" >> /etc/vsftpd.conf && \
+    echo "anon_upload_enable=YES" >> /etc/vsftpd.conf && \
+    echo "anon_world_readable_only=NO" >> /etc/vsftpd.conf && \
+    echo "anon_mkdir_write_enable=YES" >>    /etc/vsftpd.conf && \ 
+    echo "anon_other_write_enable=YES" >>    /etc/vsftpd.conf &&\
+    echo "anon_root=/var/ftp"     >>       /etc/vsftpd.conf 
+
+CMD ["vsftpd", "/etc/vsftpd.conf"]
 
 # CMD ["service","vsftpd","start"]

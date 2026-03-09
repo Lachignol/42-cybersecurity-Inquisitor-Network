@@ -9,7 +9,7 @@ services:
     networks:
       lab: 
         ipv4_address: 10.0.0.10
-    command: "tail -f /dev/null"
+    # command: "tail -f /dev/null"
 
   victime:
     build:

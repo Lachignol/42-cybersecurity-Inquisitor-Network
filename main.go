@@ -89,6 +89,7 @@ func main() {
 	}()
 	go launchPoisoning(global, ctx)
 	go launchSniffing(*typeToFilter, global, ctx)
+	go launchForwarding(global, ctx)
 
 	for {
 		// je bloque le processus principal
