@@ -22,7 +22,7 @@ func createForwardingHandle(nameOfdevice string) *pcap.Handle {
 func launchForwarding(global *global, ctx context.Context) {
 	handleForwarde := createForwardingHandle("eth0")
 	defer handleForwarde.Close()
-	// filterByType("ether dst "+global.attaquant_mac.String(), handleForwarde)
+	// filterByType("((not src host "+global.victime_ip.String()+" and not dst host "+global.serveur_ip.String()+") or (not src host "+global.serveur_ip.String()+" and not dst host "+global.victime_ip.String()+"))", handleForwarde)
 	packetSource := gopacket.NewPacketSource(handleForwarde, handleForwarde.LinkType())
 	for packet := range packetSource.Packets() {
 		select {
