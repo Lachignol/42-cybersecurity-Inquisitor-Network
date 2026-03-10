@@ -3,8 +3,7 @@ package main
 import (
 	"context"
 	"net"
-	"time"
-
+	// "time"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -23,7 +22,7 @@ func launchPoisoning(global *global, ctx context.Context) {
 			// probleme ici sur un des cote quand je ping parfois jai de la perte
 			poisoningARP(handle, global.serveur_ip, global.attaquant_mac, global.victime_ip, global.victime_mac)
 			printPoisoning(&count)
-			time.Sleep(1 * time.Second)
+			// time.Sleep(1 * time.Second)
 		}
 	}
 }

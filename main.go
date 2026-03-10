@@ -44,7 +44,6 @@ func initFakeGlob() *global {
 }
 
 func main() {
-	typeToFilter := flag.String("f", "", "Type to filter ex: Arp")
 	flag.Parse()
 
 	// // attaquant_ip := net.ParseIP("10.0.0.30")
@@ -88,8 +87,8 @@ func main() {
 		os.Exit(0)
 	}()
 	go launchPoisoning(global, ctx)
-	go launchSniffing(*typeToFilter, global, ctx)
 	go launchForwarding(global, ctx)
+	go launchSniffing(global, ctx)
 
 	for {
 		// je bloque le processus principal

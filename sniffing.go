@@ -1,22 +1,19 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"net"
-	"reflect"
-
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"net"
 )
 
-func launchSniffing(typeToFilter string, global *global, ctx context.Context) {
+func launchSniffing(global *global, ctx context.Context) {
 	handle := createSniffingHandle("eth0")
 	defer handle.Close()
-	if typeToFilter != "" {
-		filterByType(typeToFilter, handle)
-	}
+	// filterByType("ether dst "+global.attaquant_mac.String(), handle)
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
 		select {
@@ -44,35 +41,34 @@ func filterByType(typeToFilter string, handler *pcap.Handle) {
 
 func handlePacket(forwardingHandle *pcap.Handle, packet gopacket.Packet, global *global) {
 	if etherLayer := packet.Layer(layers.LayerTypeEthernet); etherLayer != nil {
-		ether, _ := etherLayer.(*layers.Ethernet)
-		if reflect.DeepEqual(ether.DstMAC, global.attaquant_mac) {
-			if ipLayer := packet.Layer(layers.LayerTypeIPv4); ipLayer != nil {
-				if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
-					handleTcpPacket(tcpLayer)
-					return
-				}
-				if icmpLayer := packet.Layer(layers.LayerTypeICMPv4); icmpLayer != nil {
-					// handleIcmpPacket(arpLayer, global.attaquant_mac)
-					return
-				}
+		layerEther, _ := etherLayer.(*layers.Ethernet)
+		if ipLayer := packet.Layer(layers.LayerTypeIPv4); ipLayer != nil {
+			if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
+				layerTcp, _ := tcpLayer.(*layers.TCP)
+				printTcpPacket(layerTcp, layerEther, global)
 				return
 			}
-			if arpLayer := packet.Layer(layers.LayerTypeARP); arpLayer != nil {
-				// handleArpPacket(arpLayer, global.attaquant_mac)
+			if icmpLayer := packet.Layer(layers.LayerTypeICMPv4); icmpLayer != nil {
+				// handleIcmpPacket(arpLayer, global.attaquant_mac)
 				return
 			}
 			return
 		}
+		if arpLayer := packet.Layer(layers.LayerTypeARP); arpLayer != nil {
+			// handleArpPacket(arpLayer, global.attaquant_mac)
+			return
+		}
+		return
 	}
-	// printAllLayer(packet)
 }
 
-func handleTcpPacket(tcpLayer gopacket.Layer) {
-	tcp, _ := tcpLayer.(*layers.TCP)
-	payload := string(tcp.Payload)
-	fmt.Printf("TCP: From src port %d to dst port %d\n", tcp.SrcPort, tcp.DstPort)
-	if len(payload) > 0 {
-		fmt.Printf("Payload :%s\n", payload)
+func printTcpPacket(tcpLayer *layers.TCP, etherLayer *layers.Ethernet, global *global) {
+	if bytes.Equal(etherLayer.DstMAC, global.attaquant_mac) {
+		payload := string(tcpLayer.Payload)
+		fmt.Printf("TCP: From src port %d to dst port %d\n", tcpLayer.SrcPort, tcpLayer.DstPort)
+		if len(payload) > 0 {
+			fmt.Printf("Payload :%s\n", payload)
+		}
 	}
 }
 
@@ -82,7 +78,7 @@ func handleArpPacket(arpLayer gopacket.Layer, attaquant_mac net.HardwareAddr) {
 	dst_Mac_addr := net.HardwareAddr(arp.DstHwAddress)
 	src_ip_addr := net.IP(arp.SourceProtAddress)
 	src_Mac_addr := net.HardwareAddr(arp.SourceHwAddress)
-	if !reflect.DeepEqual(src_Mac_addr, attaquant_mac) {
+	if !bytes.Equal(src_Mac_addr, attaquant_mac) {
 		fmt.Printf("ARP:[DESTINATION IP: %s MAC: %s] [SOURCE IP: %s MAC: %s]\n", dst_ip_addr, dst_Mac_addr, src_ip_addr, src_Mac_addr)
 	}
 }
