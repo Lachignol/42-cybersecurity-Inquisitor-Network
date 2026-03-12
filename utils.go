@@ -6,30 +6,47 @@ import (
 	"time"
 )
 
-func printPoisoning(count *int) {
-	os.Stdout.Sync()
-	dots := []string{"Poisoning", "Poisoning.", "Poisoning..", "Poisoning..."}
-
-	fmt.Printf("\r%s", dots[*count])
-	*count = (*count + 1) % len(dots)
-}
-
-func printSniffing(count *int) {
-	os.Stdout.Sync()
-	dots := []string{"Sniffing", "Sniffing.", "Sniffing..", "Sniffing..."}
-
-	fmt.Printf("\r%s", dots[*count])
-	*count = (*count + 1) % len(dots)
-}
-
-func printRecuperation(count int) {
-	dots := []string{"Please waiting we starting ARP table restauration.", "Please waiting we starting ARP table restauration..", "Please waiting we starting ARP table restauration...", "Please waiting we starting ARP table restauration...."}
-	for i := 0; i < count; i++ {
+func printPoisoning(duration int) {
+	dots := []string{"Initialize Poisoning", "Initialize Poisoning.", "Initialize Poisoning..", "Initialize Poisoning..."}
+	count := 0
+	for i := 0; i < duration; i++ {
 		os.Stdout.Sync()
-		fmt.Printf("\r%s", dots[i])
+		fmt.Printf("\r%s", dots[count])
+		count = (count + 1) % len(dots)
+		i++
 		time.Sleep(1 * time.Second)
 	}
+	os.Stdout.Sync()
+	clearCurrentLine()
+}
 
+func printSniffing(duration int) {
+	dots := []string{"Initialize Sniffing", "Initialize Sniffing.", "Initialize Sniffing..", "Initialize Sniffing..."}
+	count := 0
+	for i := 0; i < duration; i++ {
+		os.Stdout.Sync()
+		fmt.Printf("\r%s", dots[count])
+		count = (count + 1) % len(dots)
+		i++
+		time.Sleep(1 * time.Second)
+	}
+	os.Stdout.Sync()
+	clearCurrentLine()
+
+}
+
+func printRecuperation(duration int) {
+	dots := []string{"Please waiting we starting ARP table restauration.", "Please waiting we starting ARP table restauration..", "Please waiting we starting ARP table restauration...", "Please waiting we starting ARP table restauration...."}
+	count := 0
+	for i := 0; i < duration; i++ {
+		os.Stdout.Sync()
+		fmt.Printf("\r%s", dots[count])
+		count = (count + 1) % len(dots)
+		i++
+		time.Sleep(1 * time.Second)
+	}
+	os.Stdout.Sync()
+	clearCurrentLine()
 }
 
 func clearAllScreen() {
@@ -37,5 +54,5 @@ func clearAllScreen() {
 }
 
 func clearCurrentLine() {
-	fmt.Print("\033[2K\033[1A")
+	fmt.Print("\033[2K\r")
 }

@@ -1,72 +1,76 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net"
-	"os"
 )
 
-func setup(ip_src *string, mac_src *string, ip_target *string, mac_target *string) bool {
-	if !setArgs(ip_src, mac_src, ip_target, mac_target) ||
-		!checkArgs(*ip_src, *mac_src, *ip_target, *mac_target) {
-		return false
-	}
-	return true
-}
-
-func setArgs(ip_src *string, mac_src *string, ip_target *string, mac_target *string) bool {
-	argv := os.Args
+func checkArgs(argv []string, ip_src *net.IP, mac_src *net.HardwareAddr, ip_target *net.IP, mac_target *net.HardwareAddr, attaquant_mac *net.HardwareAddr) bool {
+	var err error
 	if len(argv) != 5 {
-		fmt.Printf("Usage:%s <IP-src> <MAC-src> <IP-target> <MAC-target>", argv[0])
+		fmt.Printf("Usage:%s <IP-src> <MAC-src> <IP-target> <MAC-target> <MAC-attacker>", "inquisitor")
 		return false
 	}
-	*ip_src = argv[1]
-	*mac_src = argv[2]
-	*ip_target = argv[3]
-	*mac_target = argv[4]
-	return true
-}
-
-func checkArgs(ip_src string, mac_src string, ip_target string, mac_target string) bool {
-	if !checkValidIpv4(ip_src) {
+	*ip_src, err = checkValidIpv4(argv[0])
+	if err != nil {
 		fmt.Println("ERROR: Not valid IP-src")
 		return false
 	}
-	if !checkValidIpv4(ip_target) {
+	*ip_target, err = checkValidIpv4(argv[2])
+	if err != nil {
 		fmt.Println("ERROR: Not valid IP-target")
 		return false
 	}
-	if !checkValidMacAddr(mac_src) {
+	*mac_src, err = checkValidMacAddr(argv[1])
+	if err != nil {
 		fmt.Println("ERROR: Not valid Mac-src")
 		return false
 	}
-	if !checkValidMacAddr(mac_target) {
+	*mac_target, err = checkValidMacAddr(argv[3])
+	if err != nil {
 		fmt.Println("ERROR: Not valid Mac-target")
 		return false
 	}
-	if ip_src == ip_target {
+	*attaquant_mac, err = checkValidMacAddr(argv[4])
+	if err != nil {
+		fmt.Println("ERROR: Not valid Mac-attack")
+		return false
+	}
+	if argv[0] == argv[2] {
 		fmt.Println("ERROR: IP-src and IP-target must be different")
 		return false
 	}
-	if mac_src == mac_target {
+	if argv[1] == argv[3] {
 		fmt.Println("ERROR: MAC-src and MAC-target must be different")
 		return false
 	}
+	if argv[1] == argv[4] {
+		fmt.Println("ERROR: MAC-src and MAC-attacker must be different")
+		return false
+	}
+	if argv[3] == argv[4] {
+		fmt.Println("ERROR: MAC-target and MAC-attacker must be different")
+		return false
+	}
 	return true
 }
 
-func checkValidIpv4(ipToTest string) bool {
+func checkValidIpv4(ipToTest string) (net.IP, error) {
 	ip := net.ParseIP(ipToTest)
 	if ip == nil {
-		return false
+		return nil, errors.New("Not a valid ip")
 	}
-	return ip.To4() != nil
+	if ip.To4() != nil {
+		return ip, nil
+	}
+	return nil, errors.New("Not a valid ipv4")
 }
 
-func checkValidMacAddr(macAddrToTest string) bool {
-	_, err := net.ParseMAC(macAddrToTest)
-	if err == nil {
-		return false
+func checkValidMacAddr(macAddrToTest string) (net.HardwareAddr, error) {
+	mac, err := net.ParseMAC(macAddrToTest)
+	if err != nil {
+		return nil, errors.New("Not a valid MAC")
 	}
-	return true
+	return mac, nil
 }
