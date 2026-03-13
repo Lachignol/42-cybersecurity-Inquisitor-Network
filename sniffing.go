@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -75,13 +76,12 @@ func printTcpPacket(tcpLayer *layers.TCP, etherLayer *layers.Ethernet, global *g
 			if len(payload) > 0 {
 				fmt.Printf("Payload :%s\n", payload)
 			}
-			// } else {
-			// 	if payload "STOR") {
-			// 		fmt.Printf("Payload :%s\n", payload)
-			//
-			// 	}
-			//
-			// }
+			return
+		} else {
+			if strings.Contains(payload, "STOR") {
+				fmt.Printf("Payload :%s\n", payload)
+			}
+			return
 		}
 	}
 }

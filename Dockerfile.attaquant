@@ -7,6 +7,9 @@ RUN apt-get update && \
     iputils-ping libpcap-dev tcpdump build-essential && \
     rm -rf /var/lib/apt/lists/*
 
+RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+
+
 RUN wget https://go.dev/dl/go1.24.1.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go1.24.1.linux-amd64.tar.gz && \
     rm go1.24.1.linux-amd64.tar.gz
