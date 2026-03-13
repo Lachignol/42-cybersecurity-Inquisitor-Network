@@ -7,6 +7,8 @@ RUN apt-get update && \
     iputils-ping libpcap-dev tcpdump build-essential && \
     rm -rf /var/lib/apt/lists/*
 
+
+# s'assurer que le forwarding kernel est activer pour faire le transfert de packet ver la vrai cible automatiquement
 RUN echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 
 

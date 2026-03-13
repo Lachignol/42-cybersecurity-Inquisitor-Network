@@ -79,7 +79,7 @@ func printTcpPacket(tcpLayer *layers.TCP, etherLayer *layers.Ethernet, global *g
 			return
 		} else {
 			if strings.Contains(payload, "STOR") {
-				fmt.Printf("Payload :%s\n", payload)
+				fmt.Printf("Names of files exchanged :%s\n", strings.TrimPrefix(payload, "STOR"))
 			}
 			return
 		}
