@@ -15,6 +15,7 @@ import (
 func launchSniffing(global *global, ctx context.Context) {
 	handle := createSniffingHandle("eth0")
 	defer handle.Close()
+	// printSniffing(10)
 	if !global.verbose_mode_activate {
 		filterByType("tcp and port 21", handle)
 	}
