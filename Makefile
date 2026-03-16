@@ -1,21 +1,21 @@
 NAME = inquisitor
 
 
-all: build run addr addr_ssh
+all: build
 
 build:
 	docker compose up --build 
 
-bash-vitctime:
-	docker exec -it victime bash
+bash-victime:
+	docker exec -it victime sh
 
 
 bash-attaquant:
-	docker exec -it attaquant bash
+	docker exec -it attaquant sh
 
 
 bash-serveur:
-	docker exec -it serveur bash
+	docker exec -it serveur sh
 
 clean:
 	@docker compose down 2>/dev/null || true
