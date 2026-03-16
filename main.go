@@ -18,8 +18,8 @@ type global struct {
 	verbose_mode_activate bool
 }
 
-// go run . "10.0.0.20" "02:42:0a:00:00:0B" "10.0.0.10" "02:42:0a:00:00:0A" "02:42:0a:00:00:0C"
-// go run . -v "10.0.0.20" "02:42:0a:00:00:0B" "10.0.0.10" "02:42:0a:00:00:0A" "02:42:0a:00:00:0C"
+// ./inquisitor  "10.0.0.20" "02:42:0a:00:00:0B" "10.0.0.10" "02:42:0a:00:00:0A" "02:42:0a:00:00:0C"
+// ./inquisitor -v "10.0.0.20" "02:42:0a:00:00:0B" "10.0.0.10" "02:42:0a:00:00:0A" "02:42:0a:00:00:0C"
 
 func initGlob(ip_src net.IP, mac_src net.HardwareAddr, ip_target net.IP, mac_target net.HardwareAddr, attaquant_mac net.HardwareAddr, verbose_mode bool) *global {
 	g := global{}

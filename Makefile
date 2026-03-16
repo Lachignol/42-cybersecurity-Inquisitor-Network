@@ -4,7 +4,7 @@ NAME = inquisitor
 all: build
 
 build:
-	docker compose up --build 
+	docker compose up -d --build 
 
 bash-victime:
 	docker exec -it victime sh
