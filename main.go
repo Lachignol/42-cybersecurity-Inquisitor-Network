@@ -74,9 +74,9 @@ func main() {
 		<-c
 		signal.Reset()
 		cancel()
+		printRecuperation(10)
 		launchRecuperationOneWay(global)
 		launchRecuperationOtherWay(global)
-		printRecuperation(10)
 		fmt.Println("CLEANING DONE")
 		os.Exit(0)
 	}()

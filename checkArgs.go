@@ -9,7 +9,7 @@ import (
 func checkArgs(argv []string, ip_src *net.IP, mac_src *net.HardwareAddr, ip_target *net.IP, mac_target *net.HardwareAddr, attaquant_mac *net.HardwareAddr) bool {
 	var err error
 	if len(argv) != 5 {
-		fmt.Printf("Usage:%s <IP-src> <MAC-src> <IP-target> <MAC-target> <MAC-attacker>", "inquisitor")
+		fmt.Println("Usage:%s <IP-src> <MAC-src> <IP-target> <MAC-target> <MAC-attacker>", "inquisitor")
 		return false
 	}
 	*ip_src, err = checkValidIpv4(argv[0])
