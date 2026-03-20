@@ -3,7 +3,7 @@
 [🇫🇷 Lire ce README en Français](README.md)
 
 ## 📖 Description
-**Inquisitor** is a network-focused cybersecurity project created as part of the 42 school curriculum. This project implements a **Man-in-the-Middle (MitM)** attack using the **ARP Spoofing** technique.
+**Inquisitor** is a network-focused cybersecurity. This project implements a **Man-in-the-Middle (MitM)** attack using the **ARP Spoofing** technique.
 
 Written in Go, this tool allows you to intercept communications between a victim machine and a server (specifically an FTP server) to listen to and capture network frames (Sniffing), extract transmitted files, and analyze traffic in real time.
 
@@ -23,8 +23,8 @@ Before you begin, make sure you have the following installed on your machine:
 
 1. **Clone the repository**:
    ```bash
-   git clone <your_git_link>
-   cd <folder_name>
+   git clone https://github.com/Lachignol/42-cybersecurity-Inquisitor-Network
+   cd 42-cybersecurity-Inquisitor-Network
    ```
 
 2. **Generate and start the test environment**:
