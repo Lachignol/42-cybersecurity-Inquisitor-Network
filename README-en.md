@@ -2,7 +2,7 @@
 
 [🇫🇷 Lire ce README en Français](README.md)
 
-## 📖 Description
+## Description
 **Inquisitor** is a network-focused cybersecurity. This project implements a **Man-in-the-Middle (MitM)** attack using the **ARP Spoofing** technique.
 
 Written in Go, this tool allows you to intercept communications between a victim machine and a server (specifically an FTP server) to listen to and capture network frames (Sniffing), extract transmitted files, and analyze traffic in real time.
@@ -11,7 +11,7 @@ A complete **Docker**-based test environment is provided to safely simulate an a
 
 ---
 
-## 🎥 Video demonstrations
+##  Video demonstrations
 [arp-spoofing.webm](https://github.com/user-attachments/assets/b36fc842-2788-4ef1-b9e3-da55669b0cea)
 
 ---
@@ -24,7 +24,7 @@ Before you begin, make sure you have the following installed on your machine:
 
 ---
 
-## 🚀 Installation & Getting Started
+##  Installation & Getting Started
 
 1. **Clone the repository**:
    ```bash
@@ -45,7 +45,7 @@ Before you begin, make sure you have the following installed on your machine:
 
 ---
 
-## 🎯 Usage
+##  Usage
 
 Once the environment is running, you can open separate terminals to access each machine:
 
@@ -81,7 +81,7 @@ In the attacker's terminal, you should see the credentials and the cleartext tra
 
 ---
 
-## 🧹 Useful Commands (Makefile)
+##  Useful Commands (Makefile)
 
 - `make` or `make build`: Builds and launches the Docker containers (detached).
 - `make bash-attaquant`: Opens an interactive shell in the attacker container.
