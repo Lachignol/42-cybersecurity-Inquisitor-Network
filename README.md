@@ -11,6 +11,11 @@ Un environnement de test complet basé sur **Docker** est fourni pour simuler un
 
 ---
 
+## 🎥 Démonstrations vidéo
+[arp-spoofing.webm](https://github.com/user-attachments/assets/b36fc842-2788-4ef1-b9e3-da55669b0cea)
+
+---
+
 ## 🛠️ Prérequis
 Avant de commencer, assurez-vous d'avoir installé sur votre machine :
 - [Docker](https://docs.docker.com/get-docker/)
@@ -18,10 +23,6 @@ Avant de commencer, assurez-vous d'avoir installé sur votre machine :
 - `make` (Généralement préinstallé sur Linux et macOS)
 
 ---
-
-## 🎥 Démonstrations vidéo
-[arp-spoofing.webm](https://github.com/user-attachments/assets/b36fc842-2788-4ef1-b9e3-da55669b0cea)
-
 
 
 ## 🚀 Installation & Démarrage
